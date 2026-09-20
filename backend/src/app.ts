@@ -1,5 +1,6 @@
 import { fastify, type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
+import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from 'fastify-type-provider-zod';
 
 export class App {
   private readonly app: FastifyInstance;
@@ -9,6 +10,9 @@ export class App {
   }
 
   async setupApp(): Promise<App> {
+    this.app.withTypeProvider<ZodTypeProvider>;
+    this.app.setValidatorCompiler(validatorCompiler);
+    this.app.setSerializerCompiler(serializerCompiler);
     await this.app.register(cors, { origin: '*' });
         
     return this;
