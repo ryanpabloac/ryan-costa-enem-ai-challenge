@@ -1,6 +1,6 @@
-import { UserAlreadyExists } from '@/errors/user.error.js';
+import { UserAlreadyExists } from '../errors/user.error.js';
 import { type CreateUserDTO } from '../zod/user.zod.js';
-import { User } from '@/models/user.model.js';
+import { User } from '../models/user.model.js';
 import argon2 from 'argon2';
 
 export async function createUser(userData: CreateUserDTO) {

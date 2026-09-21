@@ -1,7 +1,7 @@
-import { registerRoutes } from "@/routes/index.js";
-import { App } from "@/app.js";
-import { env } from "@/config/env.js";
-import { connectDatabase, disconnectDatabase } from "@/config/mongodb.js";
+import { registerRoutes } from "./routes/index.js";
+import { App } from "./app.js";
+import { env } from "./config/env.js";
+import { connectDatabase, disconnectDatabase } from "./config/mongodb.js";
 
 async function startServer(app: App) {
     await connectDatabase();

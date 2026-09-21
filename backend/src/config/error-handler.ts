@@ -1,4 +1,4 @@
-import { UserAlreadyExists } from "@/errors/user.error.js";
+import { UserAlreadyExists } from "../errors/user.error.js";
 import type { FastifyInstance } from "fastify";
 
 

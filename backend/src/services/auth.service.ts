@@ -1,9 +1,9 @@
-import { env } from "@/config/env.js";
-import { InvalidCredencials } from "@/errors/auth.error.js";
-import { User } from "@/models/user.model.js";
-import { type LoginRequestDTO } from "@/zod/auth.zod.js";
+import { env } from "../config/env.js";
+import { InvalidCredencials } from "../errors/auth.error.js";
+import { User } from "../models/user.model.js";
+import { type LoginRequestDTO } from "../zod/auth.zod.js";
 import argon2 from 'argon2';
-import jwt, { type JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 export async function login(loginData:LoginRequestDTO): Promise<string> {
     const userData = await User.findOne({email: loginData.email}).exec();

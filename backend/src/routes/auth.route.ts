@@ -1,7 +1,7 @@
-import { validateToken } from '@/middlewares/auth.middleware.js';
-import { login } from '@/services/auth.service.js';
-import { getUser } from '@/services/user.service.js';
-import { loginSchema, type LoginRequestDTO } from '@/zod/auth.zod.js';
+import { validateToken } from '../middlewares/auth.middleware.js';
+import { login } from '../services/auth.service.js';
+import { getUser } from '../services/user.service.js';
+import { loginSchema, type LoginRequestDTO } from '../zod/auth.zod.js';
 import { type FastifyInstance } from 'fastify';
 
 export async function authRoutes(app: FastifyInstance) {

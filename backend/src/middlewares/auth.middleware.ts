@@ -1,5 +1,5 @@
-import { env } from "@/config/env.js";
-import { UnauthorizedError } from "@/errors/auth.error.js";
+import { env } from "../config/env.js";
+import { UnauthorizedError } from "../errors/auth.error.js";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 

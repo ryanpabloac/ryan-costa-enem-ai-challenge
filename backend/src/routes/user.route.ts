@@ -1,5 +1,5 @@
-import { createUser } from "@/services/user.service.js";
-import { createUserSchema, type CreateUserDTO } from "@/zod/user.zod.js";
+import { createUser } from "../services/user.service.js";
+import { createUserSchema, type CreateUserDTO } from "../zod/user.zod.js";
 import type { FastifyInstance } from "fastify";
 
 export async function userRoutes(app: FastifyInstance) {
