@@ -21,3 +21,8 @@ export async function createUser(userData: CreateUserDTO) {
 
     await user.save();
 }
+
+export async function getUser(userId:string) {
+    const user = await User.findById(userId, "-password -_id -__v");
+    return user;
+}

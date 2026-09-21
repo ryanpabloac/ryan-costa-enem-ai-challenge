@@ -1,11 +1,11 @@
 import { env } from "@/config/env.js";
 import { InvalidCredencials } from "@/errors/auth.error.js";
 import { User } from "@/models/user.model.js";
-import { loginResponseSchema, type LoginRequestDTO, type LoginResponseDTO } from "@/zod/auth.zod.js";
+import { type LoginRequestDTO } from "@/zod/auth.zod.js";
 import argon2 from 'argon2';
-import jwt from 'jsonwebtoken';
+import jwt, { type JwtPayload } from 'jsonwebtoken';
 
-export async function login(loginData:LoginRequestDTO): Promise<LoginResponseDTO> {
+export async function login(loginData:LoginRequestDTO): Promise<string> {
     const userData = await User.findOne({email: loginData.email}).exec();
     if(!userData) throw new InvalidCredencials();
 
@@ -16,11 +16,5 @@ export async function login(loginData:LoginRequestDTO): Promise<LoginResponseDTO
         id: userData._id
     }, env.SECRET);
 
-    const userDataObject = userData.toObject();
-    const {_id, password, ...responseData } = userDataObject;
-
-    return loginResponseSchema.parse({
-        token,
-        ...responseData
-    });
+    return token;
 }
