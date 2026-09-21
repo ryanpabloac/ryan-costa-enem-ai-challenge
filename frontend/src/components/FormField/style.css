@@ -1,0 +1,92 @@
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.form-field__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-field__label {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #334155;
+  letter-spacing: -0.01em;
+}
+
+.form-field__required {
+  color: #ef4444;
+  margin-left: 0.2rem;
+}
+
+.form-field__right-action {
+  font-size: 1.2rem;
+}
+
+.form-field__input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.form-field__input {
+  width: 100%;
+  height: 4.4rem;
+  padding: 0 1.4rem;
+  font-size: 1.4rem;
+  color: #0f172a;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.8rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.form-field__input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.form-field__input:hover {
+  border-color: #94a3b8;
+}
+
+.form-field__input:focus {
+  border-color: #0b4fbf;
+  box-shadow: 0 0 0 3px rgba(11, 79, 191, 0.15);
+  background-color: #ffffff;
+}
+
+.form-field__input:disabled {
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+}
+
+/* Error state */
+.form-field--error .form-field__input {
+  border-color: #ef4444;
+  background-color: #fffbfb;
+}
+
+.form-field--error .form-field__input:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.form-field__error-message {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #dc2626;
+  line-height: 1.2;
+}
+
+.form-field__hint {
+  font-size: 1.2rem;
+  color: #64748b;
+  line-height: 1.2;
+}
