@@ -48,7 +48,6 @@ export function RegisterForm({
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [acceptedTerms, setAcceptedTerms] = useState(true);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   function applyCoursePreset(courseName: string) {
@@ -89,11 +88,6 @@ export function RegisterForm({
 
     if (password !== confirmPassword) {
       setValidationError('As senhas digitadas não coincidem.');
-      return;
-    }
-
-    if (!acceptedTerms) {
-      setValidationError('Você precisa aceitar os termos de uso para continuar.');
       return;
     }
 
