@@ -1,6 +1,7 @@
 import { fastify, type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import { serializerCompiler, validatorCompiler, type ZodTypeProvider } from 'fastify-type-provider-zod';
+import { AppError } from './errors/app.error.js';
 
 export class App {
   private readonly app: FastifyInstance;
@@ -14,7 +15,14 @@ export class App {
     this.app.setValidatorCompiler(validatorCompiler);
     this.app.setSerializerCompiler(serializerCompiler);
     await this.app.register(cors, { origin: '*' });
-        
+
+    this.app.setErrorHandler((error, req, reply) => {
+      if (error instanceof AppError) {
+        return reply.status(error.status).send(error.toProblemDetail());
+      }
+      return reply.send(error);
+    });
+
     return this;
   }
 
