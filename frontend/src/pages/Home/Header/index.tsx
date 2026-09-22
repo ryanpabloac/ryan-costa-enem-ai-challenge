@@ -13,11 +13,7 @@ export const Header = () => {
     <header className="header-container">
       <div className="header-container-left">
         <div className="header-logo-wrapper">
-          <img
-            src="/favicon.svg"
-            alt="Logo SimulaENEM"
-            className="logo-image"
-          />
+          <img src="/favicon.svg" alt="Logo SimulaENEM" className="logo-image" />
           <div className="logo-text">
             <span className="logo-title">Simula</span>
             <span className="logo-title-highlight">ENEM</span>
@@ -51,28 +47,21 @@ export const Header = () => {
           <button type="button" className="btn-primary">
             + Novo Simulado
           </button>
-          <button type="button" className="btn-secondary">
-            Enviar Redação
-          </button>
         </div>
 
-        {/* Perfil do Usuário */}
         <div className="profile-section" style={{ position: 'relative' }}>
           <div className="profile-info">
             <span className="profile-name">{displayName}</span>
             <span className="profile-details">{targetDetails}</span>
           </div>
 
-          {/* Avatar */}
-          <div className="profile-avatar-wrapper">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-              alt={displayName}
-              className="profile-avatar-img"
-            />
+          <div className="profile-avatar-wrapper" aria-label="Perfil do usuário">
+            <svg className="profile-avatar-silhouette" viewBox="0 0 64 64" aria-hidden="true">
+              <circle cx="32" cy="22" r="11" fill="currentColor" opacity="0.9" />
+              <path d="M18 50c2-8 10-13 14-13s12 5 14 13" fill="currentColor" opacity="0.85" />
+            </svg>
           </div>
 
-          {/* Menu Hambúrguer de Opções */}
           <button
             type="button"
             className="profile-menu-btn"

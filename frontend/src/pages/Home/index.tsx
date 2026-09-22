@@ -1,108 +1,189 @@
+import { useEffect, useMemo, useState } from 'react';
 import './style.css';
 import Header from './Header';
 import { useAuth } from '../../contexts';
+import { api, type ExamArea, type ExamSummary } from '../../services/api';
+
+const areaLabels: Record<ExamArea, string> = {
+  linguagens: 'Linguagens',
+  matematica: 'Matemática',
+  natureza: 'Ciências da Natureza',
+  humanas: 'Ciências Humanas',
+};
+
+const formatDate = (value: string): string => {
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return value;
+  }
+
+  return parsedDate.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+};
 
 export const Home = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const [exams, setExams] = useState<ExamSummary[] | null>(token ? null : []);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+
+    let isMounted = true;
+
+    api
+      .getExams(token)
+      .then((userExams) => {
+        if (isMounted) {
+          setExams(userExams.filter((exam) => exam.status === 'COMPLETED'));
+        }
+      })
+      .catch((error) => {
+        console.warn('Não foi possível carregar o histórico de simulados.', error);
+        if (isMounted) {
+          setExams([]);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
+
+  const isLoading = token !== null && exams === null;
+  const completedExams = useMemo(() => exams ?? [], [exams]);
+
+  const areaMetrics = useMemo(
+    () =>
+      (Object.keys(areaLabels) as ExamArea[]).map((areaKey) => {
+        const areaExams = completedExams.filter((exam) => exam.area === areaKey);
+        const average =
+          areaExams.length > 0
+            ? Math.round(
+                areaExams.reduce((sum, exam) => sum + (exam.result?.scorePercentage ?? 0), 0) /
+                  areaExams.length,
+              )
+            : 0;
+
+        return {
+          label: areaLabels[areaKey],
+          average,
+          exams: areaExams.length,
+        };
+      }),
+    [completedExams],
+  );
+
+  const overallTriAverage =
+    completedExams.length > 0
+      ? Math.round(
+          completedExams.reduce((sum, exam) => sum + (exam.result?.triScore ?? 0), 0) /
+            completedExams.length,
+        )
+      : 0;
+
+  const recentSimulations = completedExams
+    .slice(0, 5)
+    .map((exam) => ({
+      id: exam.id,
+      area: areaLabels[exam.area],
+      date: formatDate(exam.createdAt),
+      percentage: exam.result?.scorePercentage ?? 0,
+    }));
 
   return (
     <div className="home-container">
       <Header />
-      {/* Conteúdo Principal */}
+
       <main className="home-main">
-        <div style={{ maxWidth: '112rem', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2.4rem' }}>
-          {/* Banner de Boas-Vindas */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: '1.2rem',
-              padding: '2.4rem',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: '1.6rem',
-            }}
-          >
-            <div>
-              <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#0b4fbf', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Painel do Estudante
-              </span>
-              <h1 style={{ fontSize: '2.4rem', fontWeight: 800, color: '#0f172a', marginTop: '0.4rem' }}>
-                Olá, {user?.name || 'Estudante'}!
-              </h1>
-              <p style={{ fontSize: '1.4rem', color: '#64748b', marginTop: '0.4rem' }}>
-                Sua meta atual: <strong>{user?.targetCourse || 'Não informado'}</strong> na{' '}
-                <strong>{user?.targetUniversity || 'Faculdade alvo'}</strong>.
+        <div className="dashboard-container">
+          <section className="overview-card">
+            <div className="overview-card__content">
+              <span className="overview-card__eyebrow">Média TRI geral</span>
+
+              <div className="overview-card__score-wrap">
+                <span className="overview-card__score">{isLoading ? '-' : overallTriAverage}</span>
+                <span className="overview-card__score-unit">pts</span>
+              </div>
+
+              <p className="overview-card__description">
+                {completedExams.length > 0
+                  ? `${user?.name || 'Estudante'} está com média consolidada em todas as áreas do ENEM.`
+                  : 'Você ainda não concluiu nenhum simulado. Inicie o primeiro para acompanhar seu TRI.'}
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '1.2rem' }}>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => alert('Módulo de configuração de simulados será o próximo passo!')}
-              >
-                Configurar Simulado &rarr;
+            <div className="overview-card__cta">
+              <button type="button" className="btn-primary">
+                Iniciar simulado
               </button>
             </div>
-          </div>
+          </section>
 
-          {/* Grid de Informações dos Pesos e Diagnóstico */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(28rem, 1fr))', gap: '1.6rem' }}>
-            <div
-              style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '1.2rem',
-                padding: '2rem',
-                border: '1px solid #e2e8f0',
-              }}
-            >
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.2rem' }}>
-                Pesos Cadastrados no SISU
-              </h2>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.8rem', fontSize: '1.3rem' }}>
-                <li style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                  <span>Ciências Humanas:</span>
-                  <strong>{user?.weights?.humanities ?? 1}x</strong>
-                </li>
-                <li style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                  <span>Matemática e Exatas:</span>
-                  <strong>{user?.weights?.mathematics ?? 1}x</strong>
-                </li>
-                <li style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                  <span>Ciências da Natureza:</span>
-                  <strong>{user?.weights?.science ?? 1}x</strong>
-                </li>
-                <li style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                  <span>Linguagens e Códigos:</span>
-                  <strong>{user?.weights?.language ?? 1}x</strong>
-                </li>
-                <li style={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                  <span>Redação:</span>
-                  <strong>{user?.weights?.essay ?? 1}x</strong>
-                </li>
-              </ul>
+          <section className="area-grid" aria-label="Médias por área de conhecimento">
+            {areaMetrics.map((area) => (
+              <article key={area.label} className="area-card">
+                <div className="area-card__header">
+                  <span className="area-card__label">{area.label}</span>
+                  <span className="area-card__count">{area.exams} simulados</span>
+                </div>
+
+                <div className="area-card__value-wrap">
+                  <span className="area-card__value">{area.average}</span>
+                  <span className="area-card__suffix">%</span>
+                </div>
+
+                <p className="area-card__meta">
+                  {area.exams > 0 ? 'Média de acertos' : 'Sem dados ainda'}
+                </p>
+              </article>
+            ))}
+          </section>
+
+          <section className="history-section">
+            <div className="section-header">
+              <div>
+                <span className="section-header__eyebrow">Histórico</span>
+                <h2>Últimos simulados</h2>
+              </div>
+
+              <span className="section-header__summary">{completedExams.length} concluídos</span>
             </div>
 
-            <div
-              style={{
-                backgroundColor: '#ffffff',
-                borderRadius: '1.2rem',
-                padding: '2rem',
-                border: '1px solid #e2e8f0',
-              }}
-            >
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 700, color: '#0f172a', marginBottom: '1.2rem' }}>
-                Diagnóstico Pedagógico
-              </h2>
-              <p style={{ fontSize: '1.3rem', color: '#64748b', lineHeight: 1.5 }}>
-                Nenhum simulado finalizado ainda. Inicie seu primeiro simulado para calibrar sua pontuação inicial na régua oficial do Inep com cálculo TRI.
-              </p>
-            </div>
-          </div>
+            {recentSimulations.length > 0 ? (
+              <div className="history-list" aria-label="Histórico de simulados realizados">
+                {recentSimulations.map((simulation) => (
+                  <article key={simulation.id} className="history-item">
+                    <div className="history-item__date">
+                      <span>{simulation.date}</span>
+                    </div>
+
+                    <div className="history-item__area">
+                      <span className="history-item__badge">{simulation.area}</span>
+                    </div>
+
+                    <div className="history-item__score">
+                      <strong>{simulation.percentage}%</strong>
+                      <span>acerto</span>
+                    </div>
+
+                    <button type="button" className="btn-secondary history-item__action">
+                      Ver gabarito
+                    </button>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="history-empty">
+                Nenhum simulado concluído até o momento.
+              </div>
+            )}
+          </section>
         </div>
       </main>
     </div>

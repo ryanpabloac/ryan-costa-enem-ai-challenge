@@ -44,6 +44,26 @@ export interface ProblemDetail {
   issues?: Array<{ message: string; path?: string[] }>;
 }
 
+export type ExamArea = 'linguagens' | 'matematica' | 'natureza' | 'humanas';
+export type ExamStatus = 'IN_PROGRESS' | 'COMPLETED';
+
+export interface ExamResult {
+  totalQuestions: number;
+  correctCount: number;
+  wrongCount: number;
+  scorePercentage: number;
+  triScore: number;
+}
+
+export interface ExamSummary {
+  id: string;
+  area: ExamArea;
+  foreignLanguage?: 'ingles' | 'espanhol';
+  status: ExamStatus;
+  result?: ExamResult;
+  createdAt: string;
+}
+
 export class ApiError extends Error {
   public readonly status: number;
   public readonly problem?: ProblemDetail;
@@ -102,7 +122,6 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     throw new ApiError(errorMessage, response.status, errorDetail || undefined);
   }
 
-  // Tratamento de respostas sem corpo (ex: 201 ou 204)
   const contentType = response.headers.get('content-type');
   if (contentType && contentType.includes('application/json')) {
     return response.json();
@@ -128,6 +147,15 @@ export const api = {
 
   async getMe(token: string): Promise<User> {
     return request<User>('/auth/me', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+
+  async getExams(token: string): Promise<ExamSummary[]> {
+    return request<ExamSummary[]>('/exams', {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
