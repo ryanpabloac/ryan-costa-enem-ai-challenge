@@ -21,6 +21,7 @@ export function AppRoutes() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Route>
 
+      <Route path="/not-found" element={<NotFoundPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

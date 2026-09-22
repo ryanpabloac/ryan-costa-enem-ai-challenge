@@ -8,7 +8,6 @@ import type { LoginPayload, RegisterPayload } from '../../services/api';
 import './auth.css';
 
 export function AuthPage() {
-  const [mode, setMode] = useState<AuthMode>('register');
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -16,6 +15,7 @@ export function AuthPage() {
   const { login, register, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const mode: AuthMode = location.pathname === '/login' ? 'login' : 'register';
 
   // Se já estiver logado, redireciona para a página de dashboard
   useEffect(() => {
@@ -26,9 +26,9 @@ export function AuthPage() {
   }, [isAuthenticated, isLoading, navigate, location]);
 
   function handleModeChange(newMode: AuthMode) {
-    setMode(newMode);
     setErrorMessage(null);
     setSuccessMessage(null);
+    navigate(newMode === 'login' ? '/login' : '/register');
   }
 
   async function handleLogin(data: LoginPayload) {
@@ -55,7 +55,7 @@ export function AuthPage() {
     try {
       await register(data);
       setSuccessMessage('Conta criada com sucesso! Você já pode realizar o login com seu e-mail e senha.');
-      setMode('login');
+      navigate('/login', { replace: true });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erro ao criar conta.';
       setErrorMessage(message);
