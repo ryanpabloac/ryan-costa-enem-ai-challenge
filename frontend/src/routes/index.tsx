@@ -4,6 +4,7 @@ import { CreateExamPage } from '../pages/Exam/CreateExam';
 import { ExamQuestionsPage } from '../pages/Exam/Questions';
 import { ExamResultPage } from '../pages/Exam/Result';
 import { Home } from '../pages/Home';
+import { NotFoundPage } from '../pages/NotFound';
 import { ProtectedRoute } from './ProtectedRoute';
 
 export function AppRoutes() {
@@ -20,7 +21,7 @@ export function AppRoutes() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
