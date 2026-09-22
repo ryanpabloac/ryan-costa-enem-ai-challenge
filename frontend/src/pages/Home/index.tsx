@@ -4,7 +4,6 @@ import './style.css';
 import Header from './Header';
 import { useAuth } from '../../contexts';
 import { api, type ExamArea, type ExamSummary } from '../../services/api';
-import { getStoredExamProgress } from '../../utils/examProgress';
 
 const areaLabels: Record<ExamArea, string> = {
   linguagens: 'Linguagens',
@@ -32,10 +31,6 @@ export const Home = () => {
   const location = useLocation();
   const { user, token } = useAuth();
   const [exams, setExams] = useState<ExamSummary[] | null>(token ? null : []);
-  const [pendingExam] = useState<{ id: string; area: string } | null>(() => {
-    const savedProgress = getStoredExamProgress();
-    return savedProgress ? { id: savedProgress.id, area: savedProgress.area } : null;
-  });
 
   useEffect(() => {
     if (!token) {
@@ -48,7 +43,7 @@ export const Home = () => {
       .getExams(token)
       .then((userExams) => {
         if (isMounted) {
-          setExams(userExams.filter((exam) => exam.status === 'COMPLETED'));
+          setExams(userExams);
         }
       })
       .catch((error) => {
@@ -64,7 +59,14 @@ export const Home = () => {
   }, [token, location.pathname]);
 
   const isLoading = token !== null && exams === null;
-  const completedExams = useMemo(() => exams ?? [], [exams]);
+  const completedExams = useMemo(
+    () => (exams ?? []).filter((exam) => exam.status === 'COMPLETED'),
+    [exams],
+  );
+  const pendingExam = useMemo(
+    () => exams?.find((exam) => exam.status === 'IN_PROGRESS') ?? null,
+    [exams],
+  );
 
   const areaMetrics = useMemo(
     () =>
@@ -137,7 +139,7 @@ export const Home = () => {
             <section className="pending-exam-banner">
               <div>
                 <span className="pending-exam-banner__eyebrow">Simulado em andamento</span>
-                <h3>Você tem um simulado de {pendingExam.area} em progresso.</h3>
+                <h3>Você tem um simulado de {areaLabels[pendingExam.area]} em progresso.</h3>
               </div>
 
               <button type="button" className="btn-primary" onClick={() => navigate(`/simulado/${pendingExam.id}`)}>
