@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts';
 import './style.css';
 
 export const Header = () => {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
 
@@ -44,7 +46,7 @@ export const Header = () => {
 
       <div className="header-container-right">
         <div className="header-actions">
-          <button type="button" className="btn-primary">
+          <button type="button" className="btn-primary" onClick={() => navigate('/simulado/novo')}>
             + Novo Simulado
           </button>
         </div>

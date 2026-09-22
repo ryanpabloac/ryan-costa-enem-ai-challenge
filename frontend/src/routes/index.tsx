@@ -1,5 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthPage } from '../pages/Auth';
+import { CreateExamPage } from '../pages/Exam/CreateExam';
+import { ExamQuestionsPage } from '../pages/Exam/Questions';
+import { ExamResultPage } from '../pages/Exam/Result';
 import { Home } from '../pages/Home';
 import { ProtectedRoute } from './ProtectedRoute';
 
@@ -11,10 +14,12 @@ export function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Home />} />
+        <Route path="/simulado/novo" element={<CreateExamPage />} />
+        <Route path="/simulado/:id" element={<ExamQuestionsPage />} />
+        <Route path="/simulado/:id/resultado" element={<ExamResultPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Route>
 
-      {/* Rota Padrão / Fallback */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );

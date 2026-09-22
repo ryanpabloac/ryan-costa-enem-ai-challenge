@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './style.css';
 import Header from './Header';
 import { useAuth } from '../../contexts';
 import { api, type ExamArea, type ExamSummary } from '../../services/api';
+import { getStoredExamProgress } from '../../utils/examProgress';
 
 const areaLabels: Record<ExamArea, string> = {
   linguagens: 'Linguagens',
@@ -26,8 +28,14 @@ const formatDate = (value: string): string => {
 };
 
 export const Home = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { user, token } = useAuth();
   const [exams, setExams] = useState<ExamSummary[] | null>(token ? null : []);
+  const [pendingExam] = useState<{ id: string; area: string } | null>(() => {
+    const savedProgress = getStoredExamProgress();
+    return savedProgress ? { id: savedProgress.id, area: savedProgress.area } : null;
+  });
 
   useEffect(() => {
     if (!token) {
@@ -53,7 +61,7 @@ export const Home = () => {
     return () => {
       isMounted = false;
     };
-  }, [token]);
+  }, [token, location.pathname]);
 
   const isLoading = token !== null && exams === null;
   const completedExams = useMemo(() => exams ?? [], [exams]);
@@ -119,11 +127,24 @@ export const Home = () => {
             </div>
 
             <div className="overview-card__cta">
-              <button type="button" className="btn-primary">
+              <button type="button" className="btn-primary" onClick={() => navigate('/simulado/novo')}>
                 Iniciar simulado
               </button>
             </div>
           </section>
+
+          {pendingExam && (
+            <section className="pending-exam-banner">
+              <div>
+                <span className="pending-exam-banner__eyebrow">Simulado em andamento</span>
+                <h3>Você tem um simulado de {pendingExam.area} em progresso.</h3>
+              </div>
+
+              <button type="button" className="btn-primary" onClick={() => navigate(`/simulado/${pendingExam.id}`)}>
+                Continuar simulado
+              </button>
+            </section>
+          )}
 
           <section className="area-grid" aria-label="Médias por área de conhecimento">
             {areaMetrics.map((area) => (
@@ -172,7 +193,11 @@ export const Home = () => {
                       <span>acerto</span>
                     </div>
 
-                    <button type="button" className="btn-secondary history-item__action">
+                    <button
+                      type="button"
+                      className="btn-secondary history-item__action"
+                      onClick={() => navigate(`/simulado/${simulation.id}/resultado`)}
+                    >
                       Ver gabarito
                     </button>
                   </article>

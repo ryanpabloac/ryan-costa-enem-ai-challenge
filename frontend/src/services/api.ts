@@ -64,6 +64,37 @@ export interface ExamSummary {
   createdAt: string;
 }
 
+export interface ExamCreatePayload {
+  area: ExamArea;
+  foreignLanguage?: 'ingles' | 'espanhol';
+}
+
+export interface ExamAnswerPayload {
+  questionIndex: number;
+  selectedAnswer: 'A' | 'B' | 'C' | 'D' | 'E';
+}
+
+export interface ExamDetailQuestion {
+  index?: number;
+  statement: string;
+  alternatives: Array<{ letter: 'A' | 'B' | 'C' | 'D' | 'E'; text: string }>;
+  discipline: string;
+  correctAnswer: 'A' | 'B' | 'C' | 'D' | 'E';
+  explanation: string;
+  selectedAnswer?: 'A' | 'B' | 'C' | 'D' | 'E';
+}
+
+export interface ExamDetail {
+  id: string;
+  area: ExamArea;
+  foreignLanguage?: 'ingles' | 'espanhol';
+  status: ExamStatus;
+  createdAt: string;
+  answers?: ExamAnswerPayload[];
+  result?: ExamResult;
+  questions: ExamDetailQuestion[];
+}
+
 export class ApiError extends Error {
   public readonly status: number;
   public readonly problem?: ProblemDetail;
@@ -160,6 +191,39 @@ export const api = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+    });
+  },
+
+  async createExam(token: string, payload: ExamCreatePayload): Promise<ExamDetail> {
+    return request<ExamDetail>('/exams', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async getExam(token: string, id: string): Promise<ExamDetail> {
+    return request<ExamDetail>(`/exams/${id}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+
+  async submitExamAnswers(
+    token: string,
+    id: string,
+    payload: { answers: ExamAnswerPayload[] },
+  ): Promise<ExamDetail> {
+    return request<ExamDetail>(`/exams/${id}/submit`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
     });
   },
 };
